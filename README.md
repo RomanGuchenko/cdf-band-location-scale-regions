@@ -80,7 +80,7 @@ The repository also contains a separate automated verification suite. Among othe
 - checks rank calibration, seeded reproducibility, and reuse of precomputed bands;
 - reports an empirical log-log timing slope as a guard against accidental quadratic behavior.
 
-To run the verification script, use the `code/` directory as the working directory and run:
+From the repository root, run:
 
 ```bash
 Rscript location_scale_checks.R
