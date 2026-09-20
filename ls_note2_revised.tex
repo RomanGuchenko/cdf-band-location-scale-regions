@@ -1,0 +1,2250 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{
+    hidelinks,
+    pdftitle={From Distribution-Free CDF Bands to Polyhedral Confidence Regions for Location--Scale Families}
+}
+
+\definecolor{codecomment}{RGB}{40,110,65}
+\definecolor{codekeyword}{RGB}{35,70,150}
+\definecolor{codebackground}{RGB}{247,248,250}
+
+\lstdefinestyle{Rcode}{
+    language=R,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{purple!70!black},
+    backgroundcolor=\color{codebackground},
+    frame=single,
+    rulecolor=\color{black!20},
+    numbers=left,
+    numberstyle=\tiny\color{black!50},
+    stepnumber=1,
+    numbersep=8pt,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=2,
+    xleftmargin=1.5em,
+    framexleftmargin=1.2em,
+    aboveskip=0.8\baselineskip,
+    belowskip=0.8\baselineskip
+}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\Ee}{\mathbb{E}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\ind}{\mathbf{1}}
+
+%\title{
+%From Distribution-Free CDF Bands to Polyhedral Confidence Regions\\
+%for Location--Scale Families
+%}
+
+%\author{[Author Name]}
+%\date{\today}
+
+\begin{document}
+
+%\maketitle
+
+% ----------------------------------------------------------------------
+% FRONT MATTER
+% ----------------------------------------------------------------------
+
+\begin{titlepage}
+
+\centering
+
+\vspace*{1.5cm}
+
+{\LARGE\bfseries
+From Distribution-Free CDF Bands to Polyhedral Confidence Regions\\[0.3em]
+for Location--Scale Families
+\par}
+
+\vspace{1.0cm}
+
+{\large
+A documented AI-generated research artifact
+\par}
+
+\vspace{1.5cm}
+
+{\large\bfseries Roman Guchenko\par}
+\vspace{0.2cm}
+{\normalsize
+Human initiator, curator, and verifier
+\par}
+
+\vspace{1.2cm}
+
+{\normalsize
+Substantive scientific development and initial manuscript generation
+\par}
+\vspace{0.2cm}
+{\large\bfseries
+ChatGPT (OpenAI, GPT-5.6 Sol)
+\par}
+
+\vspace{1.5cm}
+
+\begin{minipage}{0.90\textwidth}
+\small
+\textbf{Research provenance.}
+This work arose from an extended research dialogue between the named
+human participant and ChatGPT.  The human participant posed the initial
+research question, selected among directions proposed during the
+investigation, executed computational experiments, returned their
+results to the model, later personally reviewed and verified the
+mathematical arguments and R implementation, curated the resulting
+research record, and prepared the work for public dissemination.
+
+ChatGPT generated most of the subsequent substantive scientific
+development, including literature exploration, formulation and
+generalization of the statistical framework, mathematical derivations,
+algorithm design, R code drafts, simulation design, interpretation of
+results, and the initial manuscript text.  The named human therefore
+does not claim conventional authorship of those AI-generated
+contributions.  His role in this publication is stated explicitly as
+human initiator, curator, and verifier.
+
+The research-development transcript, source code, computational
+notebook, verification materials, and manuscript source are preserved
+with this paper so that the provenance of the work can be examined
+directly.
+\end{minipage}
+
+\vfill
+
+{\small
+Research developed August 2026\\
+Public version: 20 September 2026\\
+Research record: \url{[repository URL]}
+\par}
+
+\end{titlepage}
+
+\begin{abstract}
+This paper studies confidence regions for the location and scale parameters of a
+continuous location--scale family obtained by inverting simultaneous,
+distribution-free confidence bands for the cumulative distribution
+function.  If the band implies simultaneous order-statistic constraints
+\[
+    \ell_i \leq F(X_{(i)}) \leq u_i,
+    \qquad i=1,\ldots,n,
+\]
+then for a location--scale family
+\[
+    F_{\mu,\sigma}(x)
+    =
+    G\!\left(\frac{x-\mu}{\sigma}\right),
+    \qquad \sigma>0,
+\]
+the induced confidence region is the intersection of the affine
+constraints
+\[
+    X_{(i)}-\sigma G^{-1}(u_i)
+    \leq \mu
+    \leq
+    X_{(i)}-\sigma G^{-1}(\ell_i).
+\]
+Consequently, the region is convex and polyhedral in the
+$(\mu,\sigma)$ parameterization.  Exact representations are derived for its
+projection onto the scale and location coordinates, its piecewise-linear
+boundary, and its area.  When the band limits are monotone in the order
+statistic index, the complete boundary can be constructed by a
+monotone-slope envelope algorithm in linear time after sorting the
+sample.
+
+The framework permits different distribution-free CDF bands to be
+compared according to their induced parametric uncertainty rather than
+according to CDF-band width alone.  The study investigates Kolmogorov--Smirnov,
+Dvoretzky--Kiefer--Wolfowitz, Berk--Jones/Owen, and
+Dümbgen--Wellner bands.  Preliminary Monte Carlo experiments reveal a
+strong target-dependent pattern.  For the normal location--scale family,
+the Kolmogorov--Smirnov band gives the shortest marginal interval for
+location, Berk--Jones gives the shortest interval for scale, and the
+Dümbgen--Wellner band gives the smallest expected joint area across a
+range of sample sizes.  Experiments with Laplace and Student-$t$
+families show that the magnitude, and in some cases the ranking, of these
+efficiency differences depends on the base location--scale family.
+These observations motivate the broader problem of designing
+distribution-free CDF bands specifically to optimize induced parametric
+confidence regions.
+\end{abstract}
+
+
+\section*{Research provenance, attribution, and verification}
+
+\subsection*{Origin of the investigation}
+
+This paper has an unusual research provenance.  The project began with
+a question posed by the human participant in a ChatGPT conversation:
+whether confidence information for a normal cumulative distribution
+function, viewed relative to an empirical CDF, could be inverted to
+obtain confidence information for the normal location and scale
+parameters.
+
+ChatGPT initially recognized the question as one of test inversion and
+related it to distribution-free goodness-of-fit procedures.  As the
+dialogue continued, the model observed that inversion of suitable
+order-statistic constraints produces affine inequalities in location
+and scale.  It then generalized this observation from the normal model
+and the Kolmogorov--Smirnov procedure to arbitrary continuous
+location--scale families and, subsequently, to arbitrary simultaneous
+distribution-free order-statistic CDF bands.
+
+The human participant did not prescribe this mathematical development
+in advance.  His role during the research dialogue was principally to
+pose questions, choose among directions suggested by the model, request
+deeper investigation of particular possibilities, execute proposed
+computations, return numerical results, and decide which developments
+were worth pursuing.
+
+\subsection*{Development of the research}
+
+The scientific direction changed repeatedly during the conversation.
+Early candidate contributions were subjected to literature searches
+performed by ChatGPT.  In particular, the model initially identified
+convexity of the Kolmogorov--Smirnov-inverted location--scale region as
+potentially interesting, but subsequent literature exploration showed
+that this property and closely related constructions were already
+known.  The research direction was therefore narrowed rather than
+retaining the earlier novelty claim.
+
+A further literature search identified recent work on inversion of
+distribution-free CDF bands through parametric quantile functions.
+This again changed the scope of the project.  The investigation moved
+toward the special geometric structure available for two-parameter
+location--scale families: affine constraints, exact projections,
+piecewise-linear boundaries, exact region area, location--scale
+equivariance, and efficient envelope algorithms.  The dialogue then
+developed the comparison of different CDF bands according to the
+parametric confidence regions that they induce.
+
+ChatGPT subsequently generated the principal mathematical derivations,
+the envelope-based computational construction, drafts of the R
+implementation, the Monte Carlo design, interpretations of the
+simulation results, and the initial version of the present manuscript.
+The research record also contains corrections and changes of direction
+made during this process.  It is therefore preserved as a chronological
+record rather than being rewritten as a retrospective account in which
+the final argument appears to have been known from the beginning.
+
+\subsection*{Human verification}
+
+After the AI-generated development of the work, the human curator
+personally reviewed and verified the mathematical arguments and
+implementation before deciding to disseminate the research.
+
+The accompanying computational materials additionally contain a
+separate verification suite.  Among other checks, it compares the
+linear-time construction with an independent quadratic pairwise
+formula, compares the computed envelopes with direct evaluations,
+checks exact area calculations against numerical integration, tests
+affine equivariance, exercises empty and unbounded cases, verifies that
+band inversion reproduces the originating test event, checks seeded
+calibration reproducibility, and includes an empirical diagnostic for
+the expected computational scaling.
+
+These automated checks are part of the reproducibility record.  They
+are distinct from the human curator's responsibility for examining the
+mathematics and implementation before publication.
+
+\subsection*{Attribution}
+
+The division of contributions in this project does not fit ordinary
+single-author terminology.  The substantive mathematical and
+computational research was generated predominantly by ChatGPT, while
+the human participant initiated the investigation, made choices about
+its direction, executed experiments, verified the resulting work,
+preserved the record, and arranged its dissemination.
+
+For that reason, Roman Guchenko is identified on the title page as
+\emph{human initiator, curator, and verifier}, rather than being
+presented without qualification as the scientific author of the
+results.  ChatGPT is explicitly credited with the substantive
+scientific development and initial manuscript generation.
+
+This attribution is intended to describe the provenance of the work as
+accurately as possible.  It does not imply that the research was
+produced autonomously without human interaction: the complete record
+shows an iterative dialogue in which the human participant repeatedly
+selected questions and supplied computational feedback.  Conversely,
+the human role in that dialogue should not be interpreted as a claim
+that the principal mathematical constructions, derivations, algorithms,
+or initial manuscript were originated by the human participant.
+
+\subsection*{Public research record}
+
+The intended public research record consists of the following
+components:
+
+\begin{itemize}
+    \item the present technical manuscript and its \LaTeX{} source;
+    \item a reader-oriented rendering of the chronological
+          human--AI research transcript;
+    \item an archival version of the retrieved transcript;
+    \item the R reference implementation;
+    \item the separate R verification suite;
+    \item the computational notebook and its rendered form; and
+    \item the information required to reproduce the reported
+          simulations, including seeds and calibration settings.
+\end{itemize}
+
+The transcript is provided not merely as supplementary commentary.
+Because the unusual provenance of the scientific work is itself an
+important claim of this publication, the dialogue constitutes primary
+evidence for how the research developed.
+
+At the time this version was prepared, the retrieved conversation
+record contained one explicitly identified truncation caused by a
+source-interface length limit.  If the corresponding passage can be
+recovered from the original conversation export, it should replace the
+truncated passage in the archival record.  Otherwise, that limitation
+will remain explicitly documented rather than being silently repaired.
+
+
+\section{Introduction}
+
+A simultaneous confidence band for a cumulative distribution function
+(CDF) is usually viewed as a nonparametric inferential object.  Given an
+empirical distribution function $F_n$, a band provides a set of
+distribution functions that are compatible with the observed sample at
+a prescribed confidence level.  If a parametric family
+$\{F_\theta:\theta\in\Theta\}$ is of interest, however, one may instead
+ask which members of this parametric family are compatible with the
+same band.  This leads naturally to the inverted set
+\[
+    \cC(X)
+    =
+    \left\{
+        \theta\in\Theta:
+        F_\theta \text{ lies in the simultaneous CDF band}
+    \right\}.
+\]
+The resulting set is a confidence region for the parameter.
+
+Inference obtained by inversion of goodness-of-fit procedures is
+classical.  Easterling \cite{Easterling1976} explicitly proposed
+parameter estimation through inversion of goodness-of-fit tests, while
+Littell and Rao \cite{LittellRao1978} developed confidence regions for
+location and scale parameters based on the Kolmogorov--Smirnov (KS)
+statistic.  Salvia \cite{Salvia1980} subsequently established important
+geometric properties of KS consonance sets, including convexity and
+finiteness for location--scale models.  Thus, neither goodness-of-fit
+test inversion nor convexity of the KS location--scale region is new.
+
+At the same time, the literature on distribution-free CDF bands has
+developed substantially beyond KS.  Berk and Jones
+\cite{BerkJones1979} introduced likelihood-ratio-type goodness-of-fit
+statistics with strong tail sensitivity.  Owen \cite{Owen1995} inverted
+the Berk--Jones construction to obtain nonparametric likelihood
+confidence bands, which are narrower in the tails and wider in the
+center than KS bands.  Frey \cite{Frey2008} studied distribution-free
+bands chosen directly to optimize narrowness criteria rather than test
+power.  More recently, Dümbgen and Wellner \cite{DumbgenWellner2023}
+introduced a multiscale refinement of the Berk--Jones/Owen framework
+that preserves strong tail behavior while improving performance in the
+central region.
+
+There has also been renewed interest in direct inversion of CDF bands
+through parametric quantile functions.  Chattopadhyay, Sarkar, and
+Kuchibhotla \cite{Chattopadhyay2026} develop a general framework for
+quantile-parametrized families, motivated particularly by models in
+which the quantile function is tractable while the likelihood or CDF is
+not.
+
+The present work focuses on a special case that has unusually strong
+geometric structure: two-parameter location--scale families.  The
+quantile function is affine in the parameters,
+\[
+    Q_{\mu,\sigma}(p)
+    =
+    \mu+\sigma G^{-1}(p),
+\]
+and therefore inversion of any simultaneous order-statistic CDF band
+produces linear inequalities in $(\mu,\sigma)$.  This observation allows
+the induced confidence set to be treated as a problem in convex
+geometry.
+
+The objectives of this paper are fourfold.
+
+First, the paper formulates CDF-band inversion for a generic continuous
+location--scale family and shows that the resulting confidence region is
+polyhedral in $(\mu,\sigma)$.
+
+Second, exact computational representations are derived for the joint
+region, its marginal confidence intervals for $\mu$ and $\sigma$, and
+its area.  These calculations reduce to piecewise-linear envelope
+operations.
+
+Third, this geometry is used to compare several classical and modern
+distribution-free confidence bands according to three parametric
+criteria:
+\[
+    \operatorname{Area}(\cC),\qquad
+    |\cC_\mu|,\qquad
+    |\cC_\sigma|.
+\]
+
+Fourth, the study investigates how these comparisons change with the base
+location--scale family.  The preliminary results suggest that
+CDF-band quality is inherently target dependent: a band that is highly
+efficient for scale need not be efficient for location, and a band that
+minimizes joint area need not minimize either marginal length.
+
+
+\section{General band inversion}
+
+\subsection{Order-statistic representation}
+
+Let
+\[
+    X_1,\ldots,X_n
+\]
+be independent observations from a continuous distribution $F$, and let
+\[
+    X_{(1)}\leq\cdots\leq X_{(n)}
+\]
+denote the order statistics.
+
+Suppose that a simultaneous distribution-free CDF band implies
+deterministic bounds
+\begin{equation}
+    \ell_i
+    \leq
+    F(X_{(i)})
+    \leq
+    u_i,
+    \qquad i=1,\ldots,n,
+    \label{eq:orderband}
+\end{equation}
+such that
+\begin{equation}
+    \Pp_F
+    \left(
+        \ell_i
+        \leq
+        F(X_{(i)})
+        \leq
+        u_i
+        \text{ for every }i
+    \right)
+    \geq
+    1-\alpha
+    \label{eq:coverage}
+\end{equation}
+for every continuous $F$.
+
+The distribution-free nature of \eqref{eq:coverage} follows from the
+probability integral transform.  If
+\[
+    U_i=F(X_i),
+\]
+then $U_i$ are independent $\operatorname{Unif}(0,1)$ random variables
+and
+\[
+    F(X_{(i)})=U_{(i)}.
+\]
+Thus calibration of the band depends only on uniform order statistics
+and not on the eventual parametric family.
+
+A small indexing detail is important.  If a CDF band is originally
+specified on the intervals between empirical jumps, then at
+$X_{(i)}$ continuity of $F$ combines information from the empirical
+CDF immediately before and immediately after the jump.  In particular,
+for constant-width bands the lower endpoint involves $i/n$ whereas the
+upper endpoint involves $(i-1)/n$.  This distinction is essential for
+obtaining the intended finite-sample coverage.
+
+
+\subsection{Location--scale families}
+
+Consider the location--scale family
+\begin{equation}
+    F_{\mu,\sigma}(x)
+    =
+    G\!\left(
+        \frac{x-\mu}{\sigma}
+    \right),
+    \qquad
+    \mu\in\R,\quad
+    \sigma>0,
+    \label{eq:lsfamily}
+\end{equation}
+where $G$ is a known continuous strictly increasing CDF.
+
+Let
+\[
+    g(p)=G^{-1}(p),
+\]
+and define
+\begin{equation}
+    a_i=g(\ell_i),
+    \qquad
+    b_i=g(u_i).
+    \label{eq:ab}
+\end{equation}
+Values $g(0)=-\infty$ and $g(1)=+\infty$ are interpreted in the usual
+extended-real sense.
+
+For a candidate $(\mu,\sigma)$, condition \eqref{eq:orderband} becomes
+\[
+    \ell_i
+    \leq
+    G\!\left(
+        \frac{X_{(i)}-\mu}{\sigma}
+    \right)
+    \leq
+    u_i.
+\]
+Since $G$ is increasing,
+\[
+    a_i
+    \leq
+    \frac{X_{(i)}-\mu}{\sigma}
+    \leq
+    b_i,
+\]
+and therefore
+\begin{equation}
+    X_{(i)}-\sigma b_i
+    \leq
+    \mu
+    \leq
+    X_{(i)}-\sigma a_i.
+    \label{eq:linearconstraints}
+\end{equation}
+
+This gives the fundamental geometric representation.
+
+\begin{proposition}[Band-induced location--scale region]
+\label{prop:polyhedral}
+Let \eqref{eq:coverage} hold for a simultaneous order-statistic band.
+For the location--scale family \eqref{eq:lsfamily}, define
+\begin{equation}
+    \cC
+    =
+    \bigcap_{i=1}^n
+    \left\{
+        (\mu,\sigma):
+        X_{(i)}-\sigma b_i
+        \leq
+        \mu
+        \leq
+        X_{(i)}-\sigma a_i
+    \right\}
+    \cap
+    \{\sigma>0\}.
+    \label{eq:C}
+\end{equation}
+Then $\cC$ is a convex polyhedral set in the $(\mu,\sigma)$
+parameterization, and
+\[
+    \Pp_{\mu_0,\sigma_0}
+    \left(
+        (\mu_0,\sigma_0)\in\cC
+    \right)
+    \geq
+    1-\alpha.
+\]
+If the order-statistic band is calibrated with exact coverage
+$1-\alpha$, the induced region has the same coverage.
+\end{proposition}
+
+\begin{proof}
+Each inequality in \eqref{eq:linearconstraints} defines a half-plane in
+$(\mu,\sigma)$, and $\{\sigma>0\}$ is convex.  Their intersection is
+therefore convex and polyhedral.
+
+For the true parameter $(\mu_0,\sigma_0)$,
+membership in $\cC$ is equivalent to
+\[
+    \ell_i
+    \leq
+    F_{\mu_0,\sigma_0}(X_{(i)})
+    \leq
+    u_i
+\]
+for every $i$.  The coverage statement therefore follows directly from
+\eqref{eq:coverage}.
+\end{proof}
+
+\begin{remark}
+Convexity here is naturally expressed in $(\mu,\sigma)$ coordinates.
+The transformation from scale to variance,
+$v=\sigma^2$, is nonlinear and does not in general preserve convexity.
+\end{remark}
+
+
+\section{Exact geometry of the confidence region}
+
+Write
+\[
+    x_i=X_{(i)}
+\]
+for convenience.
+
+\subsection{Lower and upper envelopes}
+
+For any fixed scale $s>0$, define
+\begin{align}
+    L(s)
+    &=
+    \max_{1\leq i\leq n}
+    \left\{
+        x_i-b_i s
+    \right\},
+    \label{eq:L}
+    \\
+    U(s)
+    &=
+    \min_{1\leq i\leq n}
+    \left\{
+        x_i-a_i s
+    \right\}.
+    \label{eq:U}
+\end{align}
+Constraints involving infinite $a_i$ or $b_i$ are omitted whenever they
+are nonbinding.
+
+The joint region can be written exactly as
+\begin{equation}
+    \cC
+    =
+    \left\{
+        (\mu,s):
+        s>0,\quad
+        L(s)\leq\mu\leq U(s)
+    \right\}.
+    \label{eq:enveloperegion}
+\end{equation}
+
+Because $L$ is a maximum of affine functions, it is convex and
+piecewise linear.  Because $U$ is a minimum of affine functions, it is
+concave and piecewise linear.  Consequently
+\[
+    H(s)=U(s)-L(s)
+\]
+is concave and piecewise linear.
+
+The feasible scale values satisfy
+\[
+    H(s)\geq0.
+\]
+A superlevel set of a concave function on the real line is an interval.
+Thus, whenever the joint confidence region is nonempty and bounded in
+scale,
+\begin{equation}
+    \cC_\sigma
+    =
+    [\sigma_L,\sigma_U].
+\end{equation}
+
+
+\subsection{Pairwise formula for the scale interval}
+
+For a fixed $s$, feasibility requires every lower constraint to lie
+below every upper constraint:
+\[
+    x_i-sb_i
+    \leq
+    x_j-sa_j
+    \qquad
+    \text{for all }i,j.
+\]
+Equivalently,
+\begin{equation}
+    s(a_j-b_i)
+    \leq
+    x_j-x_i.
+    \label{eq:pairwise}
+\end{equation}
+
+Let
+\[
+    d_{ij}=a_j-b_i,
+    \qquad
+    \Delta_{ij}=x_j-x_i.
+\]
+If $d_{ij}>0$, \eqref{eq:pairwise} gives
+\[
+    s
+    \leq
+    \frac{\Delta_{ij}}{d_{ij}}.
+\]
+If $d_{ij}<0$, it gives
+\[
+    s
+    \geq
+    \frac{\Delta_{ij}}{d_{ij}}.
+\]
+
+Hence an exact representation is
+\begin{equation}
+    \sigma_L
+    =
+    \max
+    \left\{
+        0,\,
+        \max_{d_{ij}<0}
+        \frac{x_j-x_i}{a_j-b_i}
+    \right\},
+    \label{eq:sigmal}
+\end{equation}
+and
+\begin{equation}
+    \sigma_U
+    =
+    \min_{d_{ij}>0}
+    \frac{x_j-x_i}{a_j-b_i},
+    \label{eq:sigmau}
+\end{equation}
+with the usual conventions if one of the index sets is empty.
+
+This representation shows that critical scale values are ratios of
+observed order-statistic spacings to theoretical quantile spacings.
+
+
+\subsection{Marginal interval for location}
+
+The marginal confidence interval for $\mu$ is the projection of
+\eqref{eq:enveloperegion} onto the location coordinate:
+\begin{equation}
+    \cC_\mu
+    =
+    [\mu_L,\mu_U],
+\end{equation}
+where
+\begin{align}
+    \mu_L
+    &=
+    \min_{\sigma_L\leq s\leq\sigma_U}
+    L(s),
+    \label{eq:mul}
+    \\
+    \mu_U
+    &=
+    \max_{\sigma_L\leq s\leq\sigma_U}
+    U(s).
+    \label{eq:muu}
+\end{align}
+
+Since $L$ is convex and piecewise linear, its minimum occurs at an
+endpoint or a breakpoint of its upper envelope.  Similarly, since
+$U$ is concave and piecewise linear, its maximum occurs at an endpoint
+or breakpoint of its lower envelope.  The marginal interval can
+therefore be obtained exactly from finitely many line intersections,
+without numerical optimization over a dense parameter grid.
+
+
+\subsection{Area of the joint region}
+
+The area of the joint region is
+\begin{equation}
+    A(\cC)
+    =
+    \int_{\sigma_L}^{\sigma_U}
+    \left[
+        U(s)-L(s)
+    \right]\,ds.
+    \label{eq:area}
+\end{equation}
+
+Let
+\[
+    \sigma_L=s_0<s_1<\cdots<s_K=\sigma_U
+\]
+be the merged set of breakpoints of $L$ and $U$.  On each interval
+$[s_k,s_{k+1}]$,
+\[
+    L(s)=c_k+d_ks,
+    \qquad
+    U(s)=e_k+f_ks.
+\]
+Therefore
+\begin{align}
+    A(\cC)
+    =
+    \sum_{k=0}^{K-1}
+    \Bigg[
+        &(e_k-c_k)(s_{k+1}-s_k)
+        \nonumber\\
+        &+
+        \frac{f_k-d_k}{2}
+        \left(
+            s_{k+1}^2-s_k^2
+        \right)
+    \Bigg].
+    \label{eq:areaexact}
+\end{align}
+
+Equivalently, because the gap $U-L$ is affine between consecutive
+breakpoints, trapezoidal integration on the breakpoint grid is exact.
+
+
+\subsection{Vertices}
+
+Boundary lines have the form
+\[
+    \mu=x_i-b_i\sigma
+\]
+or
+\[
+    \mu=x_j-a_j\sigma.
+\]
+A lower and upper boundary line intersect when
+\[
+    x_i-b_i\sigma
+    =
+    x_j-a_j\sigma,
+\]
+giving
+\begin{equation}
+    \sigma_{ij}
+    =
+    \frac{x_j-x_i}{a_j-b_i},
+    \qquad
+    \mu_{ij}
+    =
+    x_i-b_i\sigma_{ij}.
+    \label{eq:vertices}
+\end{equation}
+Candidate vertices are retained only if they satisfy all constraints.
+
+
+\section{Efficient envelope construction}
+
+The naive pairwise formulas involve $O(n^2)$ candidate intersections.
+The order-statistic structure permits a more efficient construction for
+the common case in which the confidence-band limits are monotone.
+
+Suppose
+\[
+    \ell_1\leq\cdots\leq\ell_n,
+    \qquad
+    u_1\leq\cdots\leq u_n.
+\]
+Then, because $g=G^{-1}$ is increasing,
+\[
+    a_1\leq\cdots\leq a_n,
+    \qquad
+    b_1\leq\cdots\leq b_n.
+\]
+
+The lines defining $L$ are
+\[
+    L_i(s)=x_i-b_i s,
+\]
+whose slopes $-b_i$ are monotone.  The lines defining $-U$ are
+\[
+    -U_i(s)=-x_i+a_i s,
+\]
+whose slopes $a_i$ are also monotone.
+
+\begin{proposition}[Monotone envelope algorithm]
+\label{prop:envelope}
+Assume the band limits are monotone in $i$.  Given the sorted sample,
+the active lines of $L$ and $U$, together with all their breakpoints,
+can be constructed in $O(n)$ time.
+\end{proposition}
+
+\begin{proof}
+Consider generic lines
+\[
+    f_j(t)=c_j+m_jt
+\]
+arriving in strictly increasing slope order.  Suppose the current upper
+envelope contains active lines
+\[
+    h_1,\ldots,h_r
+\]
+with increasing activation points
+\[
+    z_1<\cdots<z_r.
+\]
+A new line $q$ has slope larger than that of $h_r$.  Let $t^\ast$ be
+their intersection.
+
+If
+\[
+    t^\ast>z_r,
+\]
+then $h_r$ remains active until $t^\ast$ and $q$ becomes active
+thereafter.
+
+If instead
+\[
+    t^\ast\leq z_r,
+\]
+then $h_r$ can never be part of the new envelope.  Before $z_r$ it was
+not part of the old envelope, while after $z_r$ the higher-slope line
+$q$ is already above it.  Hence $h_r$ may be removed permanently.  The
+same comparison is repeated with the new last active line.
+
+Each line is pushed onto the envelope stack once and can be popped at
+most once.  The total number of stack operations is therefore linear in
+$n$.  Equal-slope lines are handled by retaining only the line with the
+largest intercept.
+
+For $L$, reverse the order of the lines if necessary so that the slopes
+$-b_i$ are increasing.  For $U$, construct the upper envelope of
+$-U_i(s)=-x_i+a_i s$ and negate it.
+\end{proof}
+
+After the two envelopes have been constructed, their sorted breakpoint
+lists can be merged in another linear pass.  This yields
+$\sigma_L,\sigma_U$, $\mu_L,\mu_U$, the polygon vertices, and the exact
+area.
+
+More explicitly, the merged pass evaluates
+\[
+    H(s)=U(s)-L(s)
+\]
+at every breakpoint.  Because $H$ is concave and affine between
+successive breakpoints, its first and last zero crossings give
+$\sigma_L$ and $\sigma_U$ exactly.  No pairwise intersection matrix is
+formed.
+
+The reference implementation uses preallocated envelope stacks and
+advances active-line indices monotonically during evaluation.  Thus the
+implementation, not only the abstract hull algorithm, has linear time
+and storage after the observations and slopes are ordered.  The
+pedagogical implementation assumes, as do the bands considered here,
+that the probability limits are monotone in the order-statistic index.
+A package implementation could check this condition and sort arbitrary
+slopes as a fallback, at a cost of $O(n\log n)$.
+
+For numerical stability, the implementation first centers the ordered
+sample at an observed median and divides it by its maximum absolute
+centered value.  The envelope construction and all tolerance decisions
+are made in these normalized coordinates, using relative comparisons;
+intervals, boundaries, lengths, and areas are then transformed back to
+the original units.  This preserves the affine equivariance described
+below even under very small or very large changes of measurement units.
+
+Thus, conditional on already sorted observations, the complete
+confidence-region calculation can be performed in $O(n)$ time.
+Including sorting of the raw sample gives an overall complexity of
+$O(n\log n)$.
+
+
+\section{Location--scale equivariance}
+
+The geometry has a useful invariance property.
+
+\begin{proposition}[Equivariance]
+\label{prop:equivariance}
+Suppose
+\[
+    X_i=\mu_0+\sigma_0 Z_i,
+    \qquad
+    Z_i\sim G,
+\]
+with $\sigma_0>0$.  Let $\cC_X$ be the confidence region obtained from
+the sample $X$, and let $\cC_Z$ be the corresponding region obtained
+from the standardized sample $Z$.  Then
+\begin{equation}
+    \cC_X
+    =
+    \left\{
+        (\mu_0+\sigma_0 m,\sigma_0 s):
+        (m,s)\in\cC_Z
+    \right\}.
+    \label{eq:equivariance}
+\end{equation}
+Consequently,
+\begin{align}
+    \operatorname{Area}(\cC_X)
+    &=
+    \sigma_0^2
+    \operatorname{Area}(\cC_Z),
+    \\
+    |\cC_{\mu,X}|
+    &=
+    \sigma_0
+    |\cC_{\mu,Z}|,
+    \\
+    |\cC_{\sigma,X}|
+    &=
+    \sigma_0
+    |\cC_{\sigma,Z}|.
+\end{align}
+\end{proposition}
+
+\begin{proof}
+Substitute
+\[
+    x_i=\mu_0+\sigma_0z_i,
+    \quad
+    \mu=\mu_0+\sigma_0m,
+    \quad
+    \sigma=\sigma_0s
+\]
+into \eqref{eq:linearconstraints}.  After cancellation and division by
+$\sigma_0$,
+\[
+    z_i-sb_i
+    \leq
+    m
+    \leq
+    z_i-sa_i,
+\]
+which is precisely the standardized confidence region.
+The scaling statements follow from the affine transformation and its
+Jacobian.
+\end{proof}
+
+This result has an important computational implication: for a given
+base family $G$, sample size $n$, confidence level, and CDF band, the
+distribution of the normalized confidence-region geometry can be
+studied entirely under
+\[
+    \mu_0=0,
+    \qquad
+    \sigma_0=1.
+\]
+
+
+\section{Distribution-free bands considered}
+
+Four simultaneous distribution-free CDF bands are compared.  In each
+case the band is calibrated on the uniform probability scale and then
+converted to order-statistic bounds $(\ell_i,u_i)$.
+
+
+\subsection{Kolmogorov--Smirnov}
+
+Let
+\[
+    D_n
+    =
+    \sup_x
+    |F_n(x)-F(x)|.
+\]
+Let $d_{n,\alpha}$ satisfy
+\[
+    \Pp(D_n\leq d_{n,\alpha})=1-\alpha
+\]
+for continuous $F$.  It may be evaluated exactly or calibrated by
+simulation from independent uniform observations.
+
+Using
+\[
+    D_n^+
+    =
+    \max_i
+    \left(
+        \frac{i}{n}-U_{(i)}
+    \right),
+\]
+and
+\[
+    D_n^-
+    =
+    \max_i
+    \left(
+        U_{(i)}-\frac{i-1}{n}
+    \right),
+\]
+the order-statistic bounds are
+\begin{align}
+    \ell_i^{\mathrm{KS}}
+    &=
+    \max
+    \left\{
+        0,\,
+        \frac{i}{n}-d_{n,\alpha}
+    \right\},
+    \label{eq:kslower}
+    \\
+    u_i^{\mathrm{KS}}
+    &=
+    \min
+    \left\{
+        1,\,
+        \frac{i-1}{n}+d_{n,\alpha}
+    \right\}.
+    \label{eq:ksupper}
+\end{align}
+
+
+\subsection{Dvoretzky--Kiefer--Wolfowitz}
+
+The Dvoretzky--Kiefer--Wolfowitz inequality, with Massart's sharp
+constant \cite{DKW1956,Massart1990}, gives
+\[
+    \Pp
+    \left(
+        \sup_x |F_n(x)-F(x)|>\epsilon
+    \right)
+    \leq
+    2e^{-2n\epsilon^2}.
+\]
+Taking
+\begin{equation}
+    \epsilon_{n,\alpha}
+    =
+    \sqrt{
+        \frac{\log(2/\alpha)}{2n}
+    },
+\end{equation}
+gives
+\begin{align}
+    \ell_i^{\mathrm{DKW}}
+    &=
+    \max
+    \left\{
+        0,\,
+        \frac{i}{n}-\epsilon_{n,\alpha}
+    \right\},
+    \\
+    u_i^{\mathrm{DKW}}
+    &=
+    \min
+    \left\{
+        1,\,
+        \frac{i-1}{n}+\epsilon_{n,\alpha}
+    \right\}.
+\end{align}
+
+Unlike exactly calibrated KS, DKW is an inequality-based guarantee and
+is generally conservative in finite samples.
+
+
+\subsection{Berk--Jones/Owen}
+
+Define the Bernoulli Kullback--Leibler divergence
+\begin{equation}
+    K(p,q)
+    =
+    p\log\frac{p}{q}
+    +
+    (1-p)
+    \log
+    \frac{1-p}{1-q},
+    \label{eq:KL}
+\end{equation}
+with the usual endpoint conventions.
+
+For the two-sided Berk--Jones statistic,
+\begin{equation}
+    T_n^{\mathrm{BJ}}
+    =
+    \max_{1\leq i\leq n}
+    \max
+    \left\{
+        nK\!\left(
+            \frac{i}{n},U_{(i)}
+        \right),
+        nK\!\left(
+            \frac{i-1}{n},U_{(i)}
+        \right)
+    \right\}.
+    \label{eq:BJstat}
+\end{equation}
+Let $\kappa_{n,\alpha}^{\mathrm{BJ}}$ denote its
+$(1-\alpha)$ quantile.
+
+The lower order-statistic endpoint is the lower solution of
+\begin{equation}
+    nK\!\left(
+        \frac{i}{n},q
+    \right)
+    =
+    \kappa_{n,\alpha}^{\mathrm{BJ}},
+    \qquad
+    q\leq \frac{i}{n},
+\end{equation}
+whereas the upper endpoint is the upper solution of
+\begin{equation}
+    nK\!\left(
+        \frac{i-1}{n},q
+    \right)
+    =
+    \kappa_{n,\alpha}^{\mathrm{BJ}},
+    \qquad
+    q\geq \frac{i-1}{n}.
+\end{equation}
+The scalar equations can be solved accurately by bisection or Brent's
+method.
+
+Owen \cite{Owen1995} developed finite-sample nonparametric likelihood
+confidence bands by inversion of the Berk--Jones construction.
+
+
+\subsection{Dümbgen--Wellner}
+
+The $s=1$, $\nu=1$ version of Dümbgen and Wellner is used
+\cite{DumbgenWellner2023}.  Define
+\begin{align}
+    C(t)
+    &=
+    \log
+    \log
+    \left(
+        \frac{e}{4t(1-t)}
+    \right),
+    \\
+    D(t)
+    &=
+    \log
+    \left(
+        1+C(t)^2
+    \right),
+    \\
+    C_\nu(t)
+    &=
+    C(t)+\nu D(t).
+\end{align}
+For $p,q\in[0,1]$, let
+\begin{equation}
+    C_\nu(p,q)
+    =
+    \min_{
+        \min(p,q)\leq t\leq\max(p,q)
+    }
+    C_\nu(t).
+\end{equation}
+Define
+\begin{equation}
+    H_{n,\nu}(p,q)
+    =
+    nK(p,q)-C_\nu(p,q).
+\end{equation}
+
+The finite-sample statistic can be evaluated at the empirical jumps:
+\begin{equation}
+    T_{n,\nu}^{\mathrm{DW}}
+    =
+    \max_{1\leq i\leq n}
+    \max
+    \left\{
+        H_{n,\nu}
+        \left(
+            \frac{i}{n},U_{(i)}
+        \right),
+        H_{n,\nu}
+        \left(
+            \frac{i-1}{n},U_{(i)}
+        \right)
+    \right\}.
+\end{equation}
+Let $\kappa_{n,\nu,\alpha}^{\mathrm{DW}}$ be its
+$(1-\alpha)$ quantile under the uniform model.
+
+The lower endpoint $\ell_i^{\mathrm{DW}}$ is obtained by solving
+\begin{equation}
+    H_{n,\nu}
+    \left(
+        \frac{i}{n},q
+    \right)
+    =
+    \kappa_{n,\nu,\alpha}^{\mathrm{DW}}
+\end{equation}
+on the lower side, and the upper endpoint $u_i^{\mathrm{DW}}$ is
+obtained from
+\begin{equation}
+    H_{n,\nu}
+    \left(
+        \frac{i-1}{n},q
+    \right)
+    =
+    \kappa_{n,\nu,\alpha}^{\mathrm{DW}}
+\end{equation}
+on the upper side.
+
+Dümbgen and Wellner show that their construction retains the strong
+tail performance of Berk--Jones-type bands while improving accuracy in
+the central region.
+
+
+\section{Simulation study}
+
+\subsection{Design}
+
+The preliminary simulation study compares the four bands according to
+\begin{align}
+    R_A
+    &=
+    \Ee[
+        \operatorname{Area}(\cC)
+    ],
+    \\
+    R_\mu
+    &=
+    \Ee[
+        \mu_U-\mu_L
+    ],
+    \\
+    R_\sigma
+    &=
+    \Ee[
+        \sigma_U-\sigma_L
+    ].
+\end{align}
+Empirical joint coverage is also recorded.
+
+The implementation defines these summaries for every replication.
+An empty confidence set contributes zero area and zero marginal
+lengths.  A nonempty unbounded set contributes an infinite value for
+each genuinely infinite size measure.  Coverage is evaluated
+independently of these size calculations, directly from the event
+\[
+    \ell_i\leq U_{(i)}\leq u_i
+    \qquad(i=1,\ldots,n),
+\]
+and is therefore meaningful for empty, bounded, and unbounded sets.
+No missing values are discarded when Monte Carlo means are computed:
+an \texttt{NA} propagates to the corresponding reported summary, while
+the numbers of empty, bounded, and unbounded regions are reported
+separately.
+
+For KS, Berk--Jones, and Dümbgen--Wellner, critical values were
+calibrated using $100{,}000$ samples from
+$\operatorname{Unif}(0,1)$.  DKW uses its analytic critical width.
+For each outer simulation experiment, $10{,}000$ samples were generated.
+
+The Monte Carlo critical values use an exchangeable-rank rule rather
+than an interpolated sample quantile.  If $T_1,\ldots,T_B$ are the
+calibration statistics, set
+\[
+    k=\left\lceil(B+1)(1-\alpha)\right\rceil
+\]
+and use the $k$th order statistic as the critical value (or $+\infty$
+when $k>B$).  For a continuous statistic and an independent future
+value $T_{B+1}$, exchangeability gives
+\[
+    \Pp\{T_{B+1}\leq T_{(k)}\}=\frac{k}{B+1}\geq 1-\alpha.
+\]
+Thus the finite calibration sample has an explicit marginal coverage
+guarantee.  Reported outer Monte Carlo standard errors, including the
+binomial standard error for empirical coverage, are conditional on the
+realized calibrated thresholds.
+
+Because of Proposition~\ref{prop:equivariance}, all data were generated
+under location zero and scale one.  More specifically, for a selected
+base distribution $G$, the simulations generated
+\[
+    U_i\sim\operatorname{Unif}(0,1),
+    \qquad
+    X_i=G^{-1}(U_i).
+\]
+This implementation also provides a useful validation: the coverage
+event is distribution-free and therefore should not change with $G$,
+although area and marginal lengths may change substantially.
+
+The first experiments use the normal family.  Additional experiments
+use the Laplace family and the Student-$t_2$ location--scale family.
+For Student-$t_2$, $\sigma$ denotes the scale parameter, not the
+standard deviation; indeed, the variance of the $t_2$ distribution is
+infinite.
+
+
+\subsection{Normal location--scale family}
+
+Table~\ref{tab:normal} reports preliminary results for the normal
+location--scale family.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{
+Preliminary Monte Carlo results for the normal location--scale family.
+Each row is based on $10{,}000$ outer simulations.
+}
+\label{tab:normal}
+\begin{tabular}{
+    r
+    l
+    r
+    r
+    r
+    r
+}
+\toprule
+$n$
+&
+Band
+&
+Expected area
+&
+Expected $\mu$ length
+&
+Expected $\sigma$ length
+&
+Coverage
+\\
+\midrule
+20
+& KS
+& 2.0533
+& 1.2553
+& 2.7715
+& 0.9538
+\\
+20
+& DKW
+& 2.3012
+& 1.3137
+& 2.9678
+& 0.9649
+\\
+20
+& Berk--Jones
+& 1.3554
+& 1.3669
+& 1.7189
+& 0.9511
+\\
+20
+& Dümbgen--Wellner
+& \textbf{1.3511}
+& 1.3260
+& 1.7609
+& 0.9537
+\\
+\addlinespace
+
+50
+& KS
+& 0.6262
+& \textbf{0.7517}
+& 1.4084
+& 0.9498
+\\
+50
+& DKW
+& 0.6721
+& 0.7765
+& 1.4612
+& 0.9583
+\\
+50
+& Berk--Jones
+& 0.4328
+& 0.8522
+& \textbf{0.8776}
+& 0.9540
+\\
+50
+& Dümbgen--Wellner
+& \textbf{0.4291}
+& 0.8029
+& 0.9171
+& 0.9528
+\\
+\addlinespace
+
+100
+& KS
+& 0.2975
+& \textbf{0.5298}
+& 0.9488
+& 0.9515
+\\
+100
+& DKW
+& 0.3062
+& 0.5371
+& 0.9626
+& 0.9548
+\\
+100
+& Berk--Jones
+& 0.2036
+& 0.6016
+& \textbf{0.5848}
+& 0.9488
+\\
+100
+& Dümbgen--Wellner
+& \textbf{0.2030}
+& 0.5613
+& 0.6202
+& 0.9502
+\\
+\addlinespace
+
+200
+& KS
+& 0.1430
+& \textbf{0.3709}
+& 0.6509
+& 0.9506
+\\
+200
+& DKW
+& 0.1460
+& 0.3746
+& 0.6573
+& 0.9527
+\\
+200
+& Berk--Jones
+& 0.1004
+& 0.4293
+& \textbf{0.4041}
+& 0.9472
+\\
+200
+& Dümbgen--Wellner
+& \textbf{0.0988}
+& 0.3942
+& 0.4292
+& 0.9504
+\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three patterns are striking.
+
+First, KS gives the smallest expected marginal interval for $\mu$ at
+every sample size considered.
+
+Second, Berk--Jones gives the smallest expected marginal interval for
+$\sigma$.  Its scale interval is approximately $38\%$ shorter than the
+KS interval throughout the range $n=20$ to $200$.
+
+Third, Dümbgen--Wellner gives the smallest expected joint area at every
+sample size considered.  Relative to KS, the reduction in expected area
+is approximately $34\%$ for $n=20$ and remains approximately
+$31\%$ for $n=50,100,200$.
+
+Dümbgen--Wellner appears to provide a compromise between the location
+and scale criteria.  Its expected $\mu$ interval is only about
+$6\%$ longer than KS over most of the range considered, while its joint
+area and scale interval are substantially smaller.
+
+DKW behaves similarly to KS but is systematically more conservative,
+as expected from its inequality-based calibration.
+
+
+\subsection{Laplace and heavy-tailed Student families}
+
+Table~\ref{tab:otherfamilies} reports preliminary results for the
+Laplace and Student-$t_2$ families at $n=50$.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{
+Preliminary Monte Carlo results for Laplace and Student-$t_2$
+location--scale families, $n=50$.
+}
+\label{tab:otherfamilies}
+\begin{tabular}{
+    l
+    l
+    r
+    r
+    r
+    r
+}
+\toprule
+Family
+&
+Band
+&
+Expected area
+&
+Expected $\mu$ length
+&
+Expected $\sigma$ length
+&
+Coverage
+\\
+\midrule
+Laplace
+& KS
+& 0.9403
+& \textbf{0.7712}
+& 1.9236
+& 0.9549
+\\
+Laplace
+& DKW
+& 0.9990
+& 0.7924
+& 1.9865
+& 0.9610
+\\
+Laplace
+& Berk--Jones
+& 0.7878
+& 0.9427
+& \textbf{1.2866}
+& 0.9554
+\\
+Laplace
+& Dümbgen--Wellner
+& \textbf{0.7535}
+& 0.8747
+& 1.3332
+& 0.9534
+\\
+\addlinespace
+
+Student-$t_2$
+& KS
+& 1.0706
+& \textbf{0.9335}
+& 1.8749
+& 0.9549
+\\
+Student-$t_2$
+& DKW
+& 1.1361
+& 0.9583
+& 1.9355
+& 0.9610
+\\
+Student-$t_2$
+& Berk--Jones
+& 1.0823
+& 1.1456
+& 1.5146
+& 0.9554
+\\
+Student-$t_2$
+& Dümbgen--Wellner
+& \textbf{0.9880}
+& 1.0611
+& \textbf{1.5060}
+& 0.9534
+\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the Laplace family, the qualitative normal-theory ranking remains:
+KS is best for location, Berk--Jones is best for scale, and
+Dümbgen--Wellner is best for joint area.  However, the magnitude of the
+joint-area improvement is smaller.  The expected area of the
+Dümbgen--Wellner region is about $20\%$ below that of KS, compared with
+approximately $31$--$34\%$ under the normal family.
+
+The Student-$t_2$ results show a more substantial change.  KS remains
+best for location and Dümbgen--Wellner remains best for joint area, but
+Dümbgen--Wellner now also slightly outperforms Berk--Jones in expected
+scale length.  Moreover, the Berk--Jones expected joint area is slightly
+larger than the KS area.
+
+Thus the choice of a favorable CDF band for parametric inference
+depends not only on the target criterion but also on the quantile
+geometry of the base family $G$.
+
+
+\section{Why the criteria disagree}
+
+The different behavior of the marginal location and scale intervals has
+a simple interpretation through the quantile function
+\[
+    Q_{\mu,\sigma}(p)
+    =
+    \mu+\sigma g(p).
+\]
+Its parameter derivatives are
+\begin{equation}
+    \frac{\partial Q_{\mu,\sigma}(p)}
+         {\partial\mu}
+    =
+    1,
+    \qquad
+    \frac{\partial Q_{\mu,\sigma}(p)}
+         {\partial\sigma}
+    =
+    g(p).
+    \label{eq:derivatives}
+\end{equation}
+
+Location shifts all quantiles equally.  Scale, in contrast, is
+identified through the spread of theoretical quantiles, and the
+magnitude of $g(p)$ often becomes large toward the tails.
+
+This helps explain why tail-adaptive confidence bands can improve scale
+inference dramatically.  KS and DKW allocate approximately constant
+vertical CDF uncertainty across the probability scale.  Berk--Jones and
+Dümbgen--Wellner redistribute uncertainty, providing substantially
+tighter tail bounds.  Those tail constraints can have high leverage on
+$\sigma$ after transformation through $G^{-1}$.
+
+The same observation also explains why a band optimized for scale need
+not be optimal for location.  Allocating more of the simultaneous-error
+budget toward the center can improve location inference, whereas tighter
+tail bounds can improve scale inference.
+
+For very heavy-tailed $G$, however, $G^{-1}(p)$ grows extremely rapidly
+as $p$ approaches zero or one.  Small changes in probability-scale band
+endpoints may therefore be magnified strongly in parameter space.
+The Student-$t_2$ experiment suggests that this interaction can alter
+the ranking of the bands themselves.
+
+
+\section{Relation to existing literature and proposed contribution}
+
+The main ingredients of this framework have important precedents.
+
+Goodness-of-fit inversion as an estimation principle is classical
+\cite{Easterling1976}.  KS-based location--scale confidence regions were
+developed by Littell and Rao \cite{LittellRao1978}, and Salvia
+\cite{Salvia1980} proved convexity and finiteness of KS consonance sets.
+Therefore, the fact that a KS-inverted location--scale region is convex
+cannot be regarded as a new result.
+
+Similarly, the CDF bands used here are existing constructions.
+Berk--Jones \cite{BerkJones1979}, Owen \cite{Owen1995}, and
+Dümbgen--Wellner \cite{DumbgenWellner2023} provide the principal
+tail-adaptive procedures considered in this paper.  Frey
+\cite{Frey2008} studies optimal distribution-free CDF bands under
+band-narrowness criteria.  Frey, Marrero, and Norton
+\cite{FreyMarreroNorton2009} study minimum-area confidence sets for a
+normal distribution.  Most recently, Chattopadhyay, Sarkar, and
+Kuchibhotla \cite{Chattopadhyay2026} develop general inversion of
+distribution-free CDF bands through parametric quantile functions.
+
+The contribution pursued here is therefore more specific:
+
+\begin{enumerate}[label=(\roman*)]
+    \item
+    to emphasize and exploit the fact that \emph{arbitrary}
+    simultaneous order-statistic CDF bands induce affine constraints in
+    two-parameter location--scale families;
+
+    \item
+    to give an exact computational treatment of the resulting
+    polyhedral confidence region, including marginal projections and
+    area;
+
+    \item
+    to exploit monotonicity of standard confidence bands for efficient
+    envelope construction;
+
+    \item
+    to compare different distribution-free CDF bands according to
+    induced \emph{parametric} criteria rather than CDF-band width or
+    goodness-of-fit power;
+
+    \item
+    to investigate systematically how the ranking of confidence bands
+    depends on both the inferential target and the base
+    location--scale family.
+\end{enumerate}
+
+A complete literature review is still required before any stronger
+novelty claim is made, especially for the general polyhedral and
+algorithmic statements.
+
+
+\section{A parameter-targeted band optimization problem}
+
+The simulation results suggest a broader optimization problem.
+
+Let $\cB_\alpha$ denote a class of simultaneous distribution-free CDF
+bands with coverage at least $1-\alpha$.  Every
+$B\in\cB_\alpha$ induces a confidence region
+\[
+    \cC_B(X)
+\]
+for $(\mu,\sigma)$.
+
+A band that is optimal as a confidence band for the entire CDF need not
+be optimal after transformation into parameter space.  This motivates,
+for a fixed location--scale family $G$, the criterion
+\begin{equation}
+    B_A^\star
+    =
+    \arg\min_{B\in\cB_\alpha}
+    \Ee_{0,1}
+    \left[
+        \operatorname{Area}
+        \left(
+            \cC_B(X)
+        \right)
+    \right].
+    \label{eq:optarea}
+\end{equation}
+
+Likewise one may define
+\begin{align}
+    B_\mu^\star
+    &=
+    \arg\min_{B\in\cB_\alpha}
+    \Ee_{0,1}
+    \left[
+        |\cC_{\mu,B}(X)|
+    \right],
+    \label{eq:optmu}
+    \\
+    B_\sigma^\star
+    &=
+    \arg\min_{B\in\cB_\alpha}
+    \Ee_{0,1}
+    \left[
+        |\cC_{\sigma,B}(X)|
+    \right].
+    \label{eq:optsigma}
+\end{align}
+
+The preliminary simulations provide direct evidence that these three
+objectives need not agree:
+\[
+    B_A^\star
+    \neq
+    B_\mu^\star
+    \neq
+    B_\sigma^\star
+\]
+within the set of bands currently compared.
+
+This suggests that ``optimal CDF band'' is not an intrinsic concept
+once the CDF band is being used as an intermediate device for
+parametric inference.  Optimality should instead be defined relative to
+the parameter target.
+
+
+\section{Further work}
+
+Several extensions are natural.
+
+\subsection{Larger simulation design}
+
+The first priority is a systematic experiment over
+\[
+    n\in
+    \{20,50,100,200,500,1000\}
+\]
+and several base distributions, for example
+\[
+    \text{normal},
+    \quad
+    \text{logistic},
+    \quad
+    \text{Laplace},
+    \quad
+    t_2,t_3,t_5,t_{10},
+\]
+and potentially asymmetric location--scale families.
+
+The principal plots should display relative criteria
+\begin{align}
+    \frac{
+        \Ee[A_B]
+    }{
+        \Ee[A_{\mathrm{KS}}]
+    },
+    \qquad
+    \frac{
+        \Ee[L_{\mu,B}]
+    }{
+        \Ee[L_{\mu,\mathrm{KS}}]
+    },
+    \qquad
+    \frac{
+        \Ee[L_{\sigma,B}]
+    }{
+        \Ee[L_{\sigma,\mathrm{KS}}]
+    }
+\end{align}
+as functions of sample size and tail behavior.
+
+Because every method is applied to the same simulated sample, paired
+comparisons should also be reported, for example
+\[
+    \Pp
+    \left(
+        A_{\mathrm{DW}}
+        <
+        A_{\mathrm{KS}}
+    \right).
+\]
+
+
+\subsection{Coverage matching}
+
+Native calibrations do not always have identical finite-sample
+coverage.  DKW is deliberately conservative.  The rank-calibrated KS,
+BJ, and DW thresholds have an explicit marginal coverage
+$k/(B+1)$, although their conditional coverage given one realized
+calibration sample still fluctuates around that level.
+
+Two comparisons are therefore useful:
+
+\begin{enumerate}[label=(\roman*)]
+    \item
+    the procedures under their native published calibration;
+
+    \item
+    a coverage-matched comparison in which thresholds are adjusted to
+    give a common finite-sample coverage as close as possible to
+    $1-\alpha$.
+\end{enumerate}
+
+The second comparison isolates geometric efficiency from differences in
+conservativeness.
+
+
+\subsection{Asymptotic theory}
+
+The striking stability of some normal-theory ratios suggests that
+asymptotic relative efficiencies may exist.  For example, the
+Berk--Jones scale interval was approximately $38\%$ shorter than the KS
+scale interval throughout the preliminary range $n=20$ to $200$.
+
+A theoretical question is whether quantities such as
+\[
+    \frac{
+        \Ee[
+            |\cC_{\sigma,\mathrm{BJ}}|
+        ]
+    }{
+        \Ee[
+            |\cC_{\sigma,\mathrm{KS}}|
+        ]
+    }
+\]
+converge, and how the limit depends on the tail behavior of
+$G^{-1}$.
+
+
+\subsection{Optimization over bands}
+
+The most ambitious extension is to optimize the band limits
+$(\ell_i,u_i)$ directly subject to the distribution-free coverage
+constraint
+\[
+    \Pp
+    \left(
+        \ell_i
+        \leq
+        U_{(i)}
+        \leq
+        u_i
+        \text{ for every }i
+    \right)
+    \geq
+    1-\alpha.
+\]
+
+Frey \cite{Frey2008} optimizes CDF bands according to CDF-scale
+narrowness criteria.  The present framework suggests replacing that
+objective by expected induced parameter-region area or marginal
+length.  The resulting optimal band would depend on the base family
+$G$ and on the inferential target.
+
+
+\subsection{Robustness and misspecification}
+
+A further extension is to distinguish confidence-region efficiency
+under the assumed model from behavior under misspecification.  If data
+are generated from a distribution outside the chosen location--scale
+family, the confidence region may become empty.  The event
+\[
+    \cC(X)=\varnothing
+\]
+then has a natural model-compatibility interpretation: no member of the
+specified family lies inside the chosen simultaneous CDF band.
+
+Thus the same geometric object can potentially combine parametric
+uncertainty and goodness-of-fit information.
+
+
+\section{Conclusion}
+
+A simultaneous distribution-free CDF band can be viewed not only as a
+nonparametric confidence object but also as a mechanism for generating
+finite-sample confidence regions within a parametric family.
+
+For a continuous two-parameter location--scale family, this inversion
+has a particularly simple structure.  Every order-statistic band
+constraint becomes affine in $(\mu,\sigma)$, so the joint confidence
+region is convex and polyhedral.  Its scale projection, location
+projection, vertices, and area can be computed exactly using
+piecewise-linear envelopes rather than parameter grids or repeated
+simulation over candidate parameter values.
+
+This geometry provides a common framework in which different CDF bands
+can be compared according to the uncertainty they induce about
+parameters.  Preliminary results demonstrate that such comparisons are
+not trivial.  Under normality, KS is most efficient for location,
+Berk--Jones is most efficient for scale, and Dümbgen--Wellner is most
+efficient for joint area among the bands considered.  The same broad
+pattern appears for Laplace data, while sufficiently heavy tails alter
+some rankings.
+
+The emerging conclusion is that the best distribution-free CDF band
+for parametric inference depends on what parameter uncertainty is being
+optimized and on the geometry of the underlying quantile function.
+This motivates the study of parameter-targeted distribution-free bands
+as a distinct inferential problem.
+
+
+\appendix
+
+\section{Algorithmic summary}
+
+Given a sample $x_1,\ldots,x_n$, band bounds
+$(\ell_i,u_i)$, and a base quantile function $g=G^{-1}$:
+
+\begin{enumerate}
+    \item
+    Sort the data:
+    \[
+        x_{(1)}\leq\cdots\leq x_{(n)}.
+    \]
+
+    \item
+    Transform the probability limits:
+    \[
+        a_i=g(\ell_i),
+        \qquad
+        b_i=g(u_i).
+    \]
+
+    \item
+    Form the lower envelope
+    \[
+        L(s)
+        =
+        \max_i
+        \{x_{(i)}-b_i s\}.
+    \]
+
+    \item
+    Form the upper envelope
+    \[
+        U(s)
+        =
+        \min_i
+        \{x_{(i)}-a_i s\}.
+    \]
+
+    \item
+    Merge the two ordered breakpoint lists, evaluate
+    \[
+        H(s)=U(s)-L(s),
+    \]
+    and locate its first and last zero crossings.  These are the
+    endpoints of the feasible scale interval.
+
+    \item
+    Compute
+    \[
+        \mu_L=\min L(s),
+        \qquad
+        \mu_U=\max U(s)
+    \]
+    over the feasible scale interval.
+
+    \item
+    Merge the envelope breakpoints and compute
+    \[
+        \operatorname{Area}(\cC)
+        =
+        \int
+        [U(s)-L(s)]\,ds
+    \]
+    exactly interval by interval.
+\end{enumerate}
+
+
+\section{Monte Carlo calibration}
+
+For KS, BJ, and DW, the critical values can be calibrated once for each
+$(n,\alpha)$ using independent uniform samples.  These critical values
+and the resulting probability-scale bounds are then reused in every
+outer Monte Carlo replication and for every base location--scale
+family.
+
+The reference code implements the exchangeable-rank choice
+$k=\lceil(B+1)(1-\alpha)\rceil$ directly.  Each simulation function has
+an explicit seed argument, so a displayed result can be reproduced
+without adding random-number-state machinery to the main algorithm.
+
+This separation is computationally important:
+\[
+    \text{band calibration}
+    \quad\longrightarrow\quad
+    (\ell_i,u_i)
+    \quad\longrightarrow\quad
+    \text{family-specific quantile transformation}.
+\]
+
+Changing from the normal family to Laplace or Student-$t$, for example,
+requires changing only
+\[
+    G^{-1},
+\]
+not recalibrating the distribution-free band.
+
+
+\section{Reference R implementation}
+\label{app:Rcode}
+
+The following commented R implementation contains the complete
+computational pipeline used in this note: Monte Carlo calibration of the
+KS, Berk--Jones, and D\"umbgen--Wellner bands; construction of the DKW
+bounds; exact envelope-based computation of the induced location--scale
+confidence region; and the outer Monte Carlo comparison.  The final
+driver accepts an arbitrary base quantile function, so the same code
+applies to the normal, Laplace, and Student-$t$ experiments.
+
+The listing is intentionally pedagogical rather than package-level
+production code.  It assumes that arguments have the advertised types
+and ranges and omits routine checks for malformed inputs.  It does retain
+the mathematical edge cases that affect the result---empty and
+unbounded confidence sets, infinite transformed probability endpoints,
+and relative numerical tolerances after affine normalization.  This
+keeps the statistical construction visible while the companion
+verification script tests correctness independently.
+
+The listing is consolidated from the accompanying notebook
+\path{location_scale_research.ipynb}.  It retains the explanatory
+comments from the notebook.  Sourcing the file only defines functions:
+the illustrative example and the complete reproduction study are
+explicit drivers and are not launched automatically.  The latter
+calibrates each required sample size once and reuses those bands across
+the normal, Laplace, and Student-$t_2$ experiments.  Notebook outputs are
+omitted; the numerical summaries reported in the main text remain the
+record of the preliminary runs.
+
+\lstinputlisting[
+    style=Rcode,
+    caption={Pedagogical commented R implementation and reproduction driver.},
+    label={lst:reference-R}
+]{location_scale_reference.R}
+
+
+\section{Verification code}
+\label{app:Rchecks}
+
+The separate companion file \path{location_scale_checks.R} checks the
+implementation against the independent $O(n^2)$ pairwise formula on
+randomized inputs, direct envelope maxima and minima, and dense
+numerical area integration.  It also contains regression tests for
+one-segment and final-segment envelope evaluation; extreme affine
+changes of units; empty and unbounded confidence sets; equivalence
+between each inverted band and its originating statistic event; rank
+calibration; seeded reproducibility; and reuse of precomputed bands.
+Finally, an empirical log--log timing slope guards against an accidental
+return to quadratic geometry.  The test code is distributed with the
+notebook but is not reproduced here, so the printed appendix remains
+focused on the algorithm a reader is meant to study.
+
+
+\begin{thebibliography}{99}
+\small
+
+\bibitem{BarrDavidson1973}
+D. R. Barr and T. Davidson.
+A Kolmogorov--Smirnov test for censored samples.
+\emph{Technometrics},
+15(4):739--757, 1973.
+doi:10.1080/00401706.1973.10489108.
+
+\bibitem{BerkJones1979}
+R. H. Berk and D. H. Jones.
+Goodness-of-fit test statistics that dominate the Kolmogorov statistics.
+\emph{Zeitschrift f\"ur Wahrscheinlichkeitstheorie und Verwandte Gebiete},
+47(1):47--59, 1979.
+doi:10.1007/BF00533250.
+
+\bibitem{Chattopadhyay2026}
+S. Chattopadhyay, S. Sarkar, and A. K. Kuchibhotla.
+Inference for quantile-parametrized families via CDF confidence bands.
+In \emph{Proceedings of the 42nd Conference on Uncertainty in
+Artificial Intelligence},
+Proceedings of Machine Learning Research, vol. 337,
+pp. 1034--1053, 2026.
+
+\bibitem{DKW1956}
+A. Dvoretzky, J. Kiefer, and J. Wolfowitz.
+Asymptotic minimax character of the sample distribution function and
+of the classical multinomial estimator.
+\emph{Annals of Mathematical Statistics},
+27(3):642--669, 1956.
+
+\bibitem{DumbgenWellner2023}
+L. D\"umbgen and J. A. Wellner.
+A new approach to tests and confidence bands for distribution
+functions.
+\emph{Annals of Statistics},
+51(1):260--289, 2023.
+doi:10.1214/22-AOS2249.
+
+\bibitem{Easterling1976}
+R. G. Easterling.
+Goodness of fit and parameter estimation.
+\emph{Technometrics},
+18(1):1--9, 1976.
+doi:10.1080/00401706.1976.10489394.
+
+\bibitem{Frey2008}
+J. C. Frey.
+Optimal distribution-free confidence bands for a distribution
+function.
+\emph{Journal of Statistical Planning and Inference},
+138(10):3086--3098, 2008.
+doi:10.1016/j.jspi.2007.12.001.
+
+\bibitem{FreyMarreroNorton2009}
+J. C. Frey, O. Marrero, and D. E. Norton.
+Minimum-area confidence sets for a normal distribution.
+\emph{Journal of Statistical Planning and Inference},
+139(3):1023--1032, 2009.
+doi:10.1016/j.jspi.2008.06.005.
+
+\bibitem{LittellRao1978}
+R. C. Littell and P. V. Rao.
+Confidence regions for location and scale parameters based on the
+Kolmogorov--Smirnov goodness of fit statistic.
+\emph{Technometrics},
+20(1):23--27, 1978.
+
+\bibitem{Massart1990}
+P. Massart.
+The tight constant in the Dvoretzky--Kiefer--Wolfowitz inequality.
+\emph{Annals of Probability},
+18(3):1269--1283, 1990.
+doi:10.1214/aop/1176990746.
+
+\bibitem{Owen1995}
+A. B. Owen.
+Nonparametric likelihood confidence bands for a distribution function.
+\emph{Journal of the American Statistical Association},
+90(430):516--521, 1995.
+doi:10.1080/01621459.1995.10476543.
+
+\bibitem{Salvia1980}
+A. A. Salvia.
+Some fundamental properties of Kolmogorov--Smirnov consonance sets.
+\emph{Technometrics},
+22(1):109--111, 1980.
+doi:10.1080/00401706.1980.10486107.
+
+\end{thebibliography}
+
+\end{document}

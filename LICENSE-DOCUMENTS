@@ -1,0 +1,54 @@
+DOCUMENTATION AND RESEARCH MATERIAL LICENSE
+
+Except where otherwise noted, the non-software research materials in this
+repository are made available under the Creative Commons Attribution 4.0
+International License (CC BY 4.0), to the extent that copyright or other
+licensable rights subsist in those materials and are held by Roman Guchenko.
+
+This includes, where applicable:
+
+- the research manuscript and LaTeX source;
+- README and repository documentation;
+- PROVENANCE.md;
+- human-authored editorial and curatorial material;
+- transcript formatting, organization, and annotations created for this
+  repository.
+
+License:
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Suggested attribution:
+
+    From Distribution-Free CDF Bands to Polyhedral Confidence Regions
+    for Location-Scale Families
+    Roman Guchenko, human initiator, curator, and verifier
+    Scientific development and initial manuscript generation:
+    ChatGPT (OpenAI, GPT-5.6 Sol)
+    2026
+    [repository URL]
+
+IMPORTANT RIGHTS NOTICE
+
+This license notice is intended to make reuse as clear and permissive as
+possible without overstating ownership.
+
+It does not assert that copyright necessarily subsists in material generated
+by ChatGPT or other AI systems, nor that Roman Guchenko owns exclusive
+copyright in such material. Where AI-generated material is not protected by
+copyright under applicable law, no copyright license is required for that
+material.
+
+This notice also does not license:
+
+- third-party works, quotations, figures, references, or other material that
+  may be subject to separate rights;
+- trademarks or logos;
+- rights that Roman Guchenko does not hold;
+- material whose reuse is restricted by applicable law or third-party terms.
+
+Where a third-party right applies, that right remains unaffected by this
+license notice.
+
+The software and code in this repository are licensed separately under the
+MIT License; see LICENSE-CODE.
