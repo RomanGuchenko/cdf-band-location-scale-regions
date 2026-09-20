@@ -21,14 +21,14 @@ For the full account, see [`PROVENANCE.md`](PROVENANCE.md).
 
 | Path | Description |
 | --- | --- |
-| [`paper/ls_note2_revised.pdf`](paper/ls_note2_revised.pdf) | Public PDF of the research note |
-| [`paper/ls_note2_revised.tex`](paper/ls_note2_revised.tex) | LaTeX source |
-| [`transcript/simulate-confidence-intervals-reader-edition.pdf`](transcript/simulate-confidence-intervals-reader-edition.pdf) | Reader-oriented rendering of the chronological human-AI dialogue |
-| [`transcript/simulate-confidence-intervals-transcript.pdf`](transcript/simulate-confidence-intervals-transcript.pdf) | Archival transcript as retrieved from the source conversation |
-| [`code/location_scale_reference.R`](code/location_scale_reference.R) | Pedagogical reference implementation and reproduction drivers |
-| [`code/location_scale_checks.R`](code/location_scale_checks.R) | Independent verification and regression checks |
-| [`notebook/location_scale_research.ipynb`](notebook/location_scale_research.ipynb) | Computational notebook |
-| [`notebook/location_scale_research.html`](notebook/location_scale_research.html) | Rendered notebook |
+| [`ls_note2_revised.pdf`](paper/ls_note2_revised.pdf) | Public PDF of the research note |
+| [`ls_note2_revised.tex`](paper/ls_note2_revised.tex) | LaTeX source |
+| [`simulate-confidence-intervals-reader-edition.pdf`](transcript/simulate-confidence-intervals-reader-edition.pdf) | Reader-oriented rendering of the chronological human-AI dialogue |
+| [`simulate-confidence-intervals-transcript.pdf`](transcript/simulate-confidence-intervals-transcript.pdf) | Archival transcript as retrieved from the source conversation |
+| [`location_scale_reference.R`](code/location_scale_reference.R) | Pedagogical reference implementation and reproduction drivers |
+| [`location_scale_checks.R`](code/location_scale_checks.R) | Independent verification and regression checks |
+| [`location_scale_research.ipynb`](notebook/location_scale_research.ipynb) | Computational notebook |
+| [`location_scale_research.html`](notebook/location_scale_research.html) | Rendered notebook |
 | [`PROVENANCE.md`](PROVENANCE.md) | Detailed research provenance and attribution record |
 
 The R reference implementation is also reproduced in the PDF so that the main research artifact remains computationally inspectable even when read independently of this repository.
